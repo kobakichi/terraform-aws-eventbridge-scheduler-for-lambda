@@ -1,6 +1,6 @@
 # Example with retry policy
 module "eventbridge_scheduler_with_retry" {
-  source = "../../"
+  source = "github.com/kobakichi/terraform-aws-eventbridge-scheduler-for-lambda"
 
   schedule_name       = "retry-example"
   schedule_expression = "rate(10 minutes)"

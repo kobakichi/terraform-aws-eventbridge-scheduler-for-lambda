@@ -20,7 +20,7 @@ locals {
 
 # Test the module
 module "test_scheduler" {
-  source = "../"
+  source = "github.com/kobakichi/terraform-aws-eventbridge-scheduler-for-lambda"
 
   schedule_name       = "test-scheduler"
   schedule_expression = "rate(1 minute)"

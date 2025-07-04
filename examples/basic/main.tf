@@ -1,6 +1,6 @@
 # Basic example of EventBridge Scheduler module
 module "eventbridge_scheduler" {
-  source = "../../"
+  source = "github.com/kobakichi/terraform-aws-eventbridge-scheduler-for-lambda"
 
   schedule_name       = "basic-example"
   schedule_expression = "rate(5 minutes)"

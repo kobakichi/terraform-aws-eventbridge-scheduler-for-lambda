@@ -1,91 +1,46 @@
-# AWS EventBridge Scheduler Terraform Module
+# AWS EventBridge Scheduler for Lambda - Terraform Module
 
-This Terraform module provides a comprehensive solution for creating AWS EventBridge Scheduler resources to execute Lambda functions on a schedule. It supports dynamic configuration for retry policies, flexible time windows, timezone settings, and input data.
+[![Terraform Version](https://img.shields.io/badge/terraform-%3E%3D1.0-blue.svg)](https://www.terraform.io/downloads.html)
+[![AWS Provider](https://img.shields.io/badge/aws-%7E%3E5.0-orange.svg)](https://registry.terraform.io/providers/hashicorp/aws/latest)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## Terraform Registry
-
-```hcl
-module "eventbridge_scheduler" {
-  source = "kobakichi/eventbridge-scheduler/aws"
-  version = "1.0.0"
-
-  schedule_name        = "my-lambda-schedule"
-  schedule_expression  = "rate(5 minutes)"
-  lambda_function_arn  = "arn:aws:lambda:ap-northeast-1:123456789012:function:my-function"
-}
-```
+A Terraform module for creating AWS EventBridge Scheduler resources to invoke Lambda functions on a schedule. This module supports flexible time windows, retry policies, timezone configuration, and optional input data for Lambda functions.
 
 ## Features
 
-- **Flexible Scheduling**: Support for both rate and cron expressions
-- **Timezone Configuration**: Configurable timezone settings (defaults to Asia/Tokyo)
-- **Retry Policies**: Configurable retry policies with AWS defaults
-- **Flexible Time Windows**: Support for flexible execution windows
-- **Input Data**: Optional input data to pass to Lambda functions
-- **IAM Management**: Automatic creation of IAM roles and policies
-- **State Management**: Enable/disable scheduler state
-- **AWS Default Group**: Uses AWS default scheduler group
+- 🕒 **Flexible Scheduling**: Support for both rate and cron expressions
+- 🌍 **Timezone Support**: Configurable timezone for schedule expressions
+- 🔄 **Retry Policies**: Configurable retry attempts and event age
+- 📝 **Input Data**: Optional input data for Lambda functions
+- 🛡️ **IAM Security**: Custom IAM policies using data sources
+- ⚙️ **Dynamic Configuration**: Flexible time window settings
+- 🎛️ **State Management**: Enable/disable scheduler state
 
 ## Usage
 
 ### Basic Example
 
 ```hcl
-module "lambda_scheduler" {
-  source = "kobakichi/eventbridge-scheduler/aws"
-  version = "1.0.0"
+module "eventbridge_scheduler" {
+  source = "github.com/kobakichi/terraform-aws-eventbridge-scheduler-for-lambda"
 
-  schedule_name        = "my-lambda-schedule"
+  schedule_name        = "my-lambda-scheduler"
   schedule_expression  = "rate(5 minutes)"
   lambda_function_arn  = "arn:aws:lambda:ap-northeast-1:123456789012:function:my-function"
-  enable_input         = true
-
-  lambda_input = {
-    "key1" = "value1"
-    "key2" = "value2"
-  }
-}
-```
-
-### Daily Schedule Example
-
-```hcl
-module "daily_lambda_scheduler" {
-  source = "kobakichi/eventbridge-scheduler/aws"
-  version = "1.0.0"
-
-  schedule_name        = "daily-lambda-schedule"
-  schedule_expression  = "cron(0 9 * * ? *)"  # Daily at 9 AM (Tokyo time)
-  lambda_function_arn  = "arn:aws:lambda:ap-northeast-1:123456789012:function:daily-function"
-}
-```
-
-### Without Input Data
-
-```hcl
-module "simple_lambda_scheduler" {
-  source = "kobakichi/eventbridge-scheduler/aws"
-  version = "1.0.0"
-
-  schedule_name        = "simple-lambda-schedule"
-  schedule_expression  = "rate(1 hour)"
-  lambda_function_arn  = "arn:aws:lambda:ap-northeast-1:123456789012:function:simple-function"
-  enable_input         = false
 }
 ```
 
 ### With Input Data
 
 ```hcl
-module "input_lambda_scheduler" {
-  source = "kobakichi/eventbridge-scheduler/aws"
-  version = "1.0.0"
+module "eventbridge_scheduler_with_input" {
+  source = "github.com/kobakichi/terraform-aws-eventbridge-scheduler-for-lambda"
 
-  schedule_name        = "input-lambda-schedule"
-  schedule_expression  = "rate(30 minutes)"
-  lambda_function_arn  = "arn:aws:lambda:ap-northeast-1:123456789012:function:input-function"
+  schedule_name        = "data-processing-scheduler"
+  schedule_expression  = "cron(0 9 * * ? *)"  # Daily at 9 AM
+  lambda_function_arn  = "arn:aws:lambda:ap-northeast-1:123456789012:function:data-processor"
   enable_input         = true
-
+  
   lambda_input = {
     "environment" = "production"
     "task_type"   = "data-processing"
@@ -94,31 +49,16 @@ module "input_lambda_scheduler" {
 }
 ```
 
-### Disabled Schedule Example
+### With Retry Policy
 
 ```hcl
-module "disabled_lambda_scheduler" {
-  source = "kobakichi/eventbridge-scheduler/aws"
-  version = "1.0.0"
+module "eventbridge_scheduler_with_retry" {
+  source = "github.com/kobakichi/terraform-aws-eventbridge-scheduler-for-lambda"
 
-  schedule_name        = "disabled-lambda-schedule"
-  schedule_expression  = "rate(1 hour)"
-  lambda_function_arn  = "arn:aws:lambda:ap-northeast-1:123456789012:function:disabled-function"
-  enabled              = false
-}
-```
-
-### Custom Retry Policy Example
-
-```hcl
-module "retry_lambda_scheduler" {
-  source = "kobakichi/eventbridge-scheduler/aws"
-  version = "1.0.0"
-
-  schedule_name        = "retry-lambda-schedule"
+  schedule_name        = "retry-enabled-scheduler"
   schedule_expression  = "rate(10 minutes)"
   lambda_function_arn  = "arn:aws:lambda:ap-northeast-1:123456789012:function:retry-function"
-
+  
   retry_policy = {
     maximum_event_age_in_seconds = 3600  # 1 hour
     maximum_retry_attempts       = 3     # Maximum 3 retries
@@ -126,181 +66,144 @@ module "retry_lambda_scheduler" {
 }
 ```
 
-### Flexible Time Window and Timezone Customization
+### With Custom Timezone and Flexible Time Window
 
 ```hcl
-module "flexible_scheduler" {
-  source = "kobakichi/eventbridge-scheduler/aws"
-  version = "1.0.0"
+module "eventbridge_scheduler_custom" {
+  source = "github.com/kobakichi/terraform-aws-eventbridge-scheduler-for-lambda"
 
-  schedule_name        = "flexible-schedule"
+  schedule_name        = "custom-timezone-scheduler"
   schedule_expression  = "cron(0 12 * * ? *)"  # Daily at 12 PM
-  lambda_function_arn  = "arn:aws:lambda:..."
-
-  # Enable flexible time window (allow up to 15 minutes delay)
+  lambda_function_arn  = "arn:aws:lambda:ap-northeast-1:123456789012:function:custom-function"
+  
+  schedule_expression_timezone = "Asia/Tokyo"
+  
   flexible_time_window = {
-    mode = "FLEXIBLE"
+    mode                      = "FLEXIBLE"
     maximum_window_in_minutes = 15
   }
-
-  # Use UTC timezone
-  schedule_expression_timezone = "UTC"
 }
 ```
-
-## Variables
-
-| Variable Name | Description | Type | Required | Default |
-|---------------|-------------|------|----------|---------|
-| `schedule_name` | Name of the EventBridge Scheduler schedule | string | Yes | - |
-| `schedule_expression` | Schedule expression | string | Yes | - |
-| `lambda_function_arn` | ARN of the target Lambda function | string | Yes | - |
-| `lambda_input` | Input data to pass to the Lambda function | map(any) | No | {} |
-| `enable_input` | Whether to pass input to the Lambda function | bool | No | false |
-| `enabled` | Whether to enable the EventBridge Scheduler | bool | No | true |
-| `retry_policy` | Retry policy configuration | object | No | null |
-| `flexible_time_window` | Flexible time window configuration | object | No | { mode = "OFF" } |
-| `schedule_expression_timezone` | Timezone for schedule expression | string | No | "Asia/Tokyo" |
-
-## Schedule Expression Examples
-
-- `rate(5 minutes)` - Every 5 minutes
-- `rate(1 hour)` - Every hour
-- `rate(1 day)` - Every day
-- `cron(0 12 * * ? *)` - Daily at 12 PM
-- `cron(0 9 * * MON *)` - Every Monday at 9 AM
-
-## Flexible Time Window Configuration
-
-The flexible time window controls the execution flexibility of EventBridge Scheduler.
-
-### Flexible Time Window Parameters
-
-| Parameter | Description | Default | Options |
-|-----------|-------------|---------|---------|
-| `mode` | Flexible time window mode | "OFF" | "OFF", "FLEXIBLE" |
-| `maximum_window_in_minutes` | Maximum window time in minutes | null | 1-1440 |
-
-### Examples
-
-```hcl
-# Disable flexible time window (default)
-flexible_time_window = {
-  mode = "OFF"
-}
-
-# Enable flexible time window (allow up to 30 minutes delay)
-flexible_time_window = {
-  mode = "FLEXIBLE"
-  maximum_window_in_minutes = 30
-}
-```
-
-## Timezone Configuration
-
-The `schedule_expression_timezone` specifies the timezone for the schedule expression.
-
-### Common Timezones
-
-- `"Asia/Tokyo"` - Japan Standard Time (default)
-- `"UTC"` - Coordinated Universal Time
-- `"America/New_York"` - Eastern Standard Time
-- `"Europe/London"` - Greenwich Mean Time
-
-### Examples
-
-```hcl
-# Japan time (default)
-schedule_expression_timezone = "Asia/Tokyo"
-
-# UTC time
-schedule_expression_timezone = "UTC"
-
-# Eastern Standard Time
-schedule_expression_timezone = "America/New_York"
-```
-
-## Retry Policy Configuration
-
-The retry policy controls the retry behavior when EventBridge Scheduler fails to execute the Lambda function.
-
-### Default Behavior
-
-- `retry_policy = null` (default): Uses AWS default values
-  - `maximum_event_age_in_seconds = 86400` (24 hours)
-  - `maximum_retry_attempts = 185`
-- When `retry_policy` is specified: Uses the specified values
-
-### Retry Policy Parameters
-
-| Parameter | Description | AWS Default | Range |
-|-----------|-------------|-------------|-------|
-| `maximum_event_age_in_seconds` | Maximum event age in seconds | 86400 (24 hours) | 60-86400 |
-| `maximum_retry_attempts` | Maximum retry attempts | 185 | 0-185 |
-
-### Examples
-
-#### Using AWS Default Values (Recommended)
-```hcl
-module "default_retry_scheduler" {
-  source = "kobakichi/eventbridge-scheduler/aws"
-  version = "1.0.0"
-
-  schedule_name        = "default-retry-schedule"
-  schedule_expression  = "rate(10 minutes)"
-  lambda_function_arn  = "arn:aws:lambda:..."
-  # retry_policy = null  # Default value (uses AWS defaults)
-}
-```
-
-#### Custom Values
-```hcl
-module "custom_retry_scheduler" {
-  source = "kobakichi/eventbridge-scheduler/aws"
-  version = "1.0.0"
-
-  schedule_name        = "custom-retry-schedule"
-  schedule_expression  = "rate(10 minutes)"
-  lambda_function_arn  = "arn:aws:lambda:..."
-
-  retry_policy = {
-    maximum_event_age_in_seconds = 3600  # 1 hour
-    maximum_retry_attempts       = 3     # Maximum 3 retries
-  }
-}
-```
-
-## Outputs
-
-| Output Name | Description |
-|-------------|-------------|
-| `schedule_arn` | ARN of the EventBridge Scheduler |
-| `schedule_name` | Name of the EventBridge Scheduler |
-| `scheduler_role_arn` | ARN of the EventBridge Scheduler IAM role |
-| `scheduler_role_name` | Name of the EventBridge Scheduler IAM role |
-| `lambda_invoke_policy_arn` | ARN of the Lambda execution policy |
-| `lambda_invoke_policy_name` | Name of the Lambda execution policy |
-| `retry_policy_config` | Retry policy configuration |
-| `flexible_time_window_config` | Flexible time window configuration |
-| `schedule_expression_timezone` | Timezone for schedule expression |
 
 ## Requirements
 
 | Name | Version |
 |------|---------|
 | terraform | >= 1.0 |
-| aws | >= 5.0 |
+| aws | ~> 5.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | >= 5.0 |
+| aws | ~> 5.0 |
 
-## Notes
+## Modules
 
-- This module uses the Asia/Tokyo timezone by default
-- Lambda function ARN must be in the correct format
-- IAM roles and policies are automatically created and attached
-- Custom policies grant execution permissions only to the specified Lambda function
-- The module uses AWS default scheduler group
+No modules.
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_scheduler_schedule.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/scheduler_schedule) | resource |
+| [aws_iam_role.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_role_policy_attachment.lambda_invoke_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_policy_document.scheduler_assume_role_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.lambda_invoke_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| schedule_name | Name of the EventBridge Scheduler schedule | `string` | n/a | yes |
+| schedule_expression | Schedule expression (rate or cron) | `string` | n/a | yes |
+| lambda_function_arn | ARN of the Lambda function to invoke | `string` | n/a | yes |
+| enabled | Whether the schedule is enabled | `bool` | `true` | no |
+| enable_input | Whether to enable input data for Lambda function | `bool` | `false` | no |
+| lambda_input | Input data to pass to Lambda function (when enable_input is true) | `any` | `{}` | no |
+| retry_policy | Retry policy configuration | `object` | `null` | no |
+| retry_policy.maximum_event_age_in_seconds | Maximum age of event in seconds | `number` | n/a | no |
+| retry_policy.maximum_retry_attempts | Maximum number of retry attempts | `number` | n/a | no |
+| flexible_time_window | Flexible time window configuration | `object` | `{"mode": "OFF", "maximum_window_in_minutes": 0}` | no |
+| flexible_time_window.mode | Mode of flexible time window (OFF, FLEXIBLE) | `string` | n/a | no |
+| flexible_time_window.maximum_window_in_minutes | Maximum window in minutes | `number` | n/a | no |
+| schedule_expression_timezone | Timezone for schedule expression | `string` | `"UTC"` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| schedule_arn | ARN of the EventBridge Scheduler schedule |
+| schedule_name | Name of the EventBridge Scheduler schedule |
+| role_arn | ARN of the IAM role used by the scheduler |
+| role_name | Name of the IAM role used by the scheduler |
+| policy_arn | ARN of the IAM policy for Lambda invocation |
+| policy_name | Name of the IAM policy for Lambda invocation |
+
+## Examples
+
+See the [examples](./examples) directory for more usage examples:
+
+- [Basic Example](./examples/basic) - Simple scheduler setup
+- [With Input](./examples/with-input) - Scheduler with input data
+- [With Retry](./examples/with-retry) - Scheduler with retry policy
+
+## Schedule Expression Examples
+
+### Rate Expressions
+- `rate(5 minutes)` - Every 5 minutes
+- `rate(1 hour)` - Every hour
+- `rate(7 days)` - Every 7 days
+
+### Cron Expressions
+- `cron(0 12 * * ? *)` - Daily at 12:00 PM UTC
+- `cron(0 9 ? * MON-FRI *)` - Weekdays at 9:00 AM UTC
+- `cron(0 0 1 * ? *)` - Monthly on the 1st at midnight UTC
+
+## Retry Policy
+
+The retry policy allows you to configure how EventBridge Scheduler handles failed Lambda invocations:
+
+```hcl
+retry_policy = {
+  maximum_event_age_in_seconds = 3600  # Maximum age of event before dropping
+  maximum_retry_attempts       = 3     # Maximum number of retry attempts
+}
+```
+
+## Flexible Time Window
+
+Flexible time windows allow EventBridge Scheduler to execute within a time range rather than at an exact time:
+
+```hcl
+flexible_time_window = {
+  mode                      = "FLEXIBLE"  # OFF or FLEXIBLE
+  maximum_window_in_minutes = 15          # Maximum execution window
+}
+```
+
+## IAM Permissions
+
+This module creates the following IAM resources:
+
+- **Role**: Assumed by EventBridge Scheduler
+- **Policy**: Allows `lambda:InvokeFunction` on the specified Lambda function
+- **Attachment**: Links the policy to the role
+
+## Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Security
+
+Please read [SECURITY.md](SECURITY.md) for details on our security policy.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a list of changes and version history.

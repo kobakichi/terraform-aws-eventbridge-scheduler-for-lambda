@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive variable validation
 - Multiple usage examples
 
+### Changed
+- Repository name updated to `terraform-aws-eventbridge-scheduler-for-lambda`
+- Updated all documentation and examples to reflect new repository name
+
 ### Features
 - EventBridge Scheduler resource creation
 - IAM role and policy management

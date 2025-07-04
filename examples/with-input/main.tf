@@ -1,6 +1,6 @@
 # Example with input data
 module "eventbridge_scheduler_with_input" {
-  source = "../../"
+  source = "github.com/kobakichi/terraform-aws-eventbridge-scheduler-for-lambda"
 
   schedule_name       = "input-example"
   schedule_expression = "cron(0 9 * * ? *)" # Daily at 9 AM
