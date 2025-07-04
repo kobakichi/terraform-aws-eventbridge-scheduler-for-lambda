@@ -47,7 +47,7 @@ variable "retry_policy" {
 variable "flexible_time_window" {
   description = "EventBridge Scheduler flexible time window configuration"
   type = object({
-    mode = optional(string, "OFF")
+    mode                      = optional(string, "OFF")
     maximum_window_in_minutes = optional(number)
   })
   default = {

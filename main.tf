@@ -6,7 +6,7 @@ resource "aws_scheduler_schedule" "this" {
   name = var.schedule_name
 
   flexible_time_window {
-    mode = var.flexible_time_window.mode
+    mode                      = var.flexible_time_window.mode
     maximum_window_in_minutes = var.flexible_time_window.maximum_window_in_minutes
   }
 
@@ -32,8 +32,8 @@ resource "aws_scheduler_schedule" "this" {
     }) : null
   }
 
-      # Set timezone
-    schedule_expression_timezone = var.schedule_expression_timezone
+  # Set timezone
+  schedule_expression_timezone = var.schedule_expression_timezone
 }
 
 # EventBridge Scheduler assume role policy document
