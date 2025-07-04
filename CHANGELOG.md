@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Timezone configuration support
 - Input data support for Lambda functions
 - Custom IAM policies using data sources
+- Lambda permission for EventBridge Scheduler invocation
 - Comprehensive variable validation
 - Multiple usage examples
 

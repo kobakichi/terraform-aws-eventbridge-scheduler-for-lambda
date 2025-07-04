@@ -36,6 +36,15 @@ resource "aws_scheduler_schedule" "this" {
   schedule_expression_timezone = var.schedule_expression_timezone
 }
 
+# Lambda permission to allow EventBridge Scheduler to invoke the function
+resource "aws_lambda_permission" "this" {
+  statement_id  = "AllowExecutionFromEventBridgeScheduler"
+  action        = "lambda:InvokeFunction"
+  function_name = var.lambda_function_arn
+  principal     = "scheduler.amazonaws.com"
+  source_arn    = aws_scheduler_schedule.this.arn
+}
+
 # EventBridge Scheduler assume role policy document
 data "aws_iam_policy_document" "scheduler_assume_role_policy" {
   statement {

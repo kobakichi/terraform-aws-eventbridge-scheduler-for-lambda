@@ -107,6 +107,7 @@ No modules.
 | Name | Type |
 |------|------|
 | [aws_scheduler_schedule.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/scheduler_schedule) | resource |
+| [aws_lambda_permission.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
 | [aws_iam_role.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_role_policy_attachment.lambda_invoke_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
@@ -141,6 +142,8 @@ No modules.
 | role_name | Name of the IAM role used by the scheduler |
 | policy_arn | ARN of the IAM policy for Lambda invocation |
 | policy_name | Name of the IAM policy for Lambda invocation |
+| lambda_permission_id | ID of the Lambda permission for EventBridge Scheduler |
+| lambda_permission_statement_id | Statement ID of the Lambda permission |
 
 ## Examples
 
@@ -184,13 +187,19 @@ flexible_time_window = {
 }
 ```
 
-## IAM Permissions
+## IAM Permissions and Lambda Permissions
 
-This module creates the following IAM resources:
+This module creates the following resources:
 
+### IAM Resources
 - **Role**: Assumed by EventBridge Scheduler
 - **Policy**: Allows `lambda:InvokeFunction` on the specified Lambda function
 - **Attachment**: Links the policy to the role
+
+### Lambda Permission
+- **Lambda Permission**: Allows EventBridge Scheduler to invoke the Lambda function
+- **Principal**: `scheduler.amazonaws.com`
+- **Source ARN**: The EventBridge Scheduler schedule ARN
 
 ## Contributing
 

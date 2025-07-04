@@ -30,6 +30,16 @@ output "lambda_invoke_policy_name" {
   value       = aws_iam_policy.this.name
 }
 
+output "lambda_permission_id" {
+  description = "ID of the Lambda permission for EventBridge Scheduler"
+  value       = aws_lambda_permission.this.id
+}
+
+output "lambda_permission_statement_id" {
+  description = "Statement ID of the Lambda permission"
+  value       = aws_lambda_permission.this.statement_id
+}
+
 output "retry_policy_config" {
   description = "Retry policy configuration"
   value       = var.retry_policy
